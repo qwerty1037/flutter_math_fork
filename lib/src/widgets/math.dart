@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_math_fork/src/ast/element_break.dart';
 import 'package:provider/provider.dart';
 
 import '../ast/options.dart';
@@ -187,7 +188,8 @@ class Math extends StatelessWidget {
       options = MathOptions(
         style: mathStyle,
         fontSize: effectiveTextStyle.fontSize! * textScaleFactor,
-        mathFontOptions: effectiveTextStyle.fontWeight != FontWeight.normal && effectiveTextStyle.fontWeight != null
+        mathFontOptions: effectiveTextStyle.fontWeight != FontWeight.normal &&
+                effectiveTextStyle.fontWeight != null
             ? FontOptions(fontWeight: effectiveTextStyle.fontWeight!)
             : null,
         logicalPpi: logicalPpi,
@@ -266,6 +268,36 @@ class Math extends StatelessWidget {
               ))
           .toList(growable: false),
       penalties: astBreakResult.penalties,
+    );
+  }
+
+  /// Element breaking results using internal function.
+  ///
+  /// This function will return a list of widgets that represent the math elements.
+  /// Similar to the [texBreak] function, but it breaks the equation into element pieces.
+  ///
+  /// Added by Qwerty1037
+  BreakResult<Math> elementBreak() {
+    final ast = this.ast;
+    if (ast == null || parseError != null) {
+      return BreakResult(parts: [this], penalties: [10000]);
+    }
+    final astElementBreakResult = ast.elementBreak();
+
+    return BreakResult(
+      parts: astElementBreakResult.parts
+          .map((part) => Math(
+                ast: part,
+                mathStyle: this.mathStyle,
+                logicalPpi: this.logicalPpi,
+                onErrorFallback: this.onErrorFallback,
+                options: this.options,
+                parseError: this.parseError,
+                textScaleFactor: this.textScaleFactor,
+                textStyle: this.textStyle,
+              ))
+          .toList(growable: false),
+      penalties: astElementBreakResult.penalties,
     );
   }
 }
