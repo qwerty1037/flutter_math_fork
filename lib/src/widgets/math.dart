@@ -282,6 +282,10 @@ class Math extends StatelessWidget {
     if (ast == null || parseError != null) {
       return BreakResult(parts: [this], penalties: [10000]);
     }
+
+    for (var i in ast.greenRoot.flattenedChildList) {
+      debugPrint('[TEST] ${i}');
+    }
     final astElementBreakResult = ast.elementBreak();
 
     return BreakResult(

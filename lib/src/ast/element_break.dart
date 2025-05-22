@@ -15,11 +15,20 @@ extension SyntaxTreeElementStyleBreakExt on SyntaxTree {
 }
 
 extension EquationRowNodeElementStyleBreakExt on EquationRowNode {
+  List<EquationRowNode> _elementBreak(List<GreenNode> list) {
+    return list
+        .where((element) => !(element is TransparentNode))
+        .expand((element) {
+      if (element is EquationRowNode) {
+        return _elementBreak(element.flattenedChildList);
+      }
+      return [element.wrapWithEquationRow()];
+    }).toList();
+  }
+
   BreakResult<EquationRowNode> elementBreak() {
     return BreakResult<EquationRowNode>(
-      parts: flattenedChildList
-          .map((element) => element.wrapWithEquationRow())
-          .toList(),
+      parts: _elementBreak(flattenedChildList),
       penalties: [10000],
     );
   }
